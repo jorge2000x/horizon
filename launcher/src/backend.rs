@@ -22,6 +22,7 @@ pub const VERSION: &str = version_or(option_env!("HORIZON_LAUNCHER_VERSION"));
 pub const LAUNCHER_TAG_PREFIX: &str = "launcher@";
 /// The launcher tags from before 0.2 (`launcher-v0.16.0`).
 pub const OLD_LAUNCHER_TAG_PREFIX: &str = "launcher-v";
+pub const OFFLINE_PLAY: bool = true;
 
 const fn version_or(injected: Option<&'static str>) -> &'static str {
     match injected {
