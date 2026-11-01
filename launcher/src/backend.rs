@@ -3293,13 +3293,21 @@ pub struct Settings {
     /// offline names play without an account that owns the game, in the window only
     /// (`account::Accounts::play_as_with`, `account::launch_for_game`). Never a download: the game still
     /// comes from the player's own install. Off by default, and absent from the file while off.
-    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    #[serde(default)]
     pub dev_offline: bool,
 }
 
 impl Settings {
-    pub fn load() -> Self {
-        Self::parse(&fs::read_to_string(data_dir().join("settings.json")).unwrap_or_default())
+        pub fn load() -> Self {
+        let text = fs::read_to_string(data_dir().join("settings.json")).unwrap_or_default();
+        let mut settings = Self::parse(&text);
+        let chosen = serde_json::from_str::<serde_json::Value>(&text)
+            .ok()
+            .and_then(|value| value.get("dev_offline").and_then(|v| v.as_bool()));
+        if chosen.is_none() {
+            settings.dev_offline = OFFLINE_PLAY;
+        }
+        settings
     }
     pub fn parse(text: &str) -> Self {
         let Ok(mut value) = serde_json::from_str::<serde_json::Value>(text) else {
